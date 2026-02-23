@@ -11,16 +11,20 @@
 const HEADERS = [
   'Date Added',
   'Address',
+  'Unit',
   'Neighborhood',
   'Price ($/mo)',
   'Sq Ft',
   'Available From',
-  'Transit Commute (min)',
-  'Walking Commute (min)',
+  'Transit (min)',
+  'Walking (min)',
   'W/D in Unit',
+  'Laundry in Building',
   'Elevator',
   'Doorman',
   'Dishwasher',
+  'Gym',
+  'Nearby Trains',
   'Link',
   'Notes',
 ];
@@ -70,18 +74,22 @@ function appendRow(data) {
   sheet.appendRow([
     new Date().toLocaleDateString('en-US'),
     data.address        || '',
+    data.unit           || '',
     data.neighborhood   || '',
     data.price          || '',
     data.squareFootage  || '',
-    '',                          // Available From — set below
+    '',                               // Available From — set below
     data.transitCommute || '',
     data.walkingCommute || '',
     yesNo(data.hasWasherDryer),
+    yesNo(data.hasLaundryInBuilding),
     yesNo(data.hasElevator),
     yesNo(data.hasDoorman),
     yesNo(data.hasDishwasher),
-    data.url   || '',
-    data.notes || '',
+    yesNo(data.hasGym),
+    data.nearbyTrains || '',
+    data.url          || '',
+    data.notes        || '',
   ]);
 
   // Set Available From: formula if "now", plain date string otherwise

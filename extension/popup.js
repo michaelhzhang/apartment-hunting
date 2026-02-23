@@ -56,13 +56,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function populateForm(data) {
   setVal('address',       data.address);
+  setVal('unit',          data.unit);
   setVal('neighborhood',  data.neighborhood);
   setVal('price',         data.price);
   setVal('squareFootage', data.squareFootage);
-  setChecked('hasWasherDryer', data.hasWasherDryer);
-  setChecked('hasElevator',    data.hasElevator);
-  setChecked('hasDoorman',     data.hasDoorman);
-  setChecked('hasDishwasher',  data.hasDishwasher);
+  setVal('nearbyTrains',  data.nearbyTrains);
+  setChecked('hasWasherDryer',       data.hasWasherDryer);
+  setChecked('hasLaundryInBuilding', data.hasLaundryInBuilding);
+  setChecked('hasElevator',          data.hasElevator);
+  setChecked('hasDoorman',           data.hasDoorman);
+  setChecked('hasDishwasher',        data.hasDishwasher);
+  setChecked('hasGym',               data.hasGym);
   if (data.availableNow) {
     setChecked('availableNow', true);
     document.getElementById('availableDate').disabled = true;
@@ -136,6 +140,10 @@ async function saveApartment(settings) {
     hasElevator:    document.getElementById('hasElevator').checked,
     hasDoorman:     document.getElementById('hasDoorman').checked,
     hasDishwasher:  document.getElementById('hasDishwasher').checked,
+    unit:           document.getElementById('unit').value.trim(),
+    nearbyTrains:   document.getElementById('nearbyTrains').value.trim(),
+    hasLaundryInBuilding: document.getElementById('hasLaundryInBuilding').checked,
+    hasGym:         document.getElementById('hasGym').checked,
     notes:          document.getElementById('notes').value.trim(),
     availableNow:   document.getElementById('availableNow').checked,
     availableDate:  document.getElementById('availableDate').value,

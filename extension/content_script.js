@@ -81,13 +81,23 @@ function extractStreetEasy() {
     neighborhood: '',
     price: '',
     squareFootage: '',
+    unit: '',
     hasWasherDryer: false,
+    hasLaundryInBuilding: false,
     hasElevator: false,
     hasDoorman: false,
     hasDishwasher: false,
+    hasGym: false,
+    nearbyTrains: '',
     availableNow: false,
     availableDate: '',   // YYYY-MM-DD or ''
   };
+
+  // --- Unit number from URL path: /building/building-name/UNIT ---
+  const pathParts = window.location.pathname.split('/').filter(Boolean);
+  if (pathParts.length >= 3) {
+    result.unit = pathParts[2].toUpperCase();
+  }
 
   // --- Structured data (most reliable) ---
   const ld = getJsonLd();
@@ -176,10 +186,27 @@ function extractStreetEasy() {
   ]);
   const joined = amenityTexts.join(' ');
 
-  result.hasWasherDryer = /washer|dryer|w\/d|laundry\s+in\s+unit/i.test(joined);
-  result.hasElevator    = /elevator/i.test(joined);
-  result.hasDoorman     = /doorman|door\s*man|concierge/i.test(joined);
-  result.hasDishwasher  = /dishwasher/i.test(joined);
+  result.hasWasherDryer        = /washer|dryer|w\/d|laundry\s+in\s+unit/i.test(joined);
+  result.hasLaundryInBuilding  = /laundry\s+in\s+building|shared\s+laundry|common\s+laundry/i.test(joined);
+  result.hasElevator           = /elevator/i.test(joined);
+  result.hasDoorman            = /doorman|door\s*man|concierge/i.test(joined);
+  result.hasDishwasher         = /dishwasher/i.test(joined);
+  result.hasGym                = /\bgym\b|fitness\s+center|fitness\s+room/i.test(joined);
+
+  // --- Nearby trains ---
+  // StreetEasy lists transit lines; extract recognised NYC subway line identifiers.
+  const NYC_LINES = /\b([1-7]|[ACEBDFMNQRWJLZGSs]|SIR)\b/g;
+  const transitSelectors = [
+    '[class*="transit"]', '[class*="Transit"]',
+    '[class*="subway"]',  '[class*="Subway"]',
+    '[class*="train"]',   '[class*="Train"]',
+    '[class*="transport"]',
+  ];
+  const transitText = allTextOf(transitSelectors).join(' ');
+  if (transitText) {
+    const lines = [...new Set(transitText.toUpperCase().match(NYC_LINES) || [])];
+    result.nearbyTrains = lines.join(', ');
+  }
 
   // --- Availability ---
   // Walk text nodes looking for "available [date|now]" patterns

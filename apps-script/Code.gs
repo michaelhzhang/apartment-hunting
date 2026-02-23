@@ -27,6 +27,14 @@ const HEADERS = [
 
 const AVAIL_COL = HEADERS.indexOf('Available From') + 1; // 1-indexed for Sheets API
 
+// Run this once manually from the Apps Script editor (▶ Run) whenever
+// HEADERS changes. It overwrites row 1 with the current header list.
+function updateHeaders() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]).setFontWeight('bold');
+  sheet.setFrozenRows(1);
+}
+
 // Quick sanity-check: open the /exec URL in a browser tab.
 // If the deployment is working you'll see {"ok":true}.
 function doGet() {

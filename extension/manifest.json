@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "Apartment Hunter",
+  "version": "1.0.0",
+  "description": "Save StreetEasy listings to Google Sheets with commute times",
+
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": [
+    "https://streeteasy.com/*",
+    "https://routes.googleapis.com/*",
+    "https://script.google.com/*",
+    "https://script.googleusercontent.com/*"
+  ],
+
+  "content_scripts": [
+    {
+      "matches": ["https://streeteasy.com/building/*/*"],
+      "js": ["content_script.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "options_page": "options.html",
+
+  "background": {
+    "service_worker": "background.js"
+  }
+}

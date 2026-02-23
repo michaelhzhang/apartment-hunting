@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Apartment Hunter — Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <h1>🏠 Apartment Hunter Settings</h1>
+
+    <section>
+      <h2>Commute</h2>
+      <div class="form-group">
+        <label for="workAddress">Work address</label>
+        <input type="text" id="workAddress" placeholder="350 5th Ave, New York, NY 10118">
+        <p class="hint">Full address used for commute time calculations.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Google Maps API</h2>
+      <div class="form-group">
+        <label for="mapsApiKey">API key</label>
+        <input type="text" id="mapsApiKey" placeholder="AIza…" spellcheck="false">
+        <p class="hint">
+          Create a key in <a href="https://console.cloud.google.com/google/maps-apis/credentials" target="_blank">Google Cloud Console</a>
+          and enable the <strong>Distance Matrix API</strong>.
+          The $200/month free credit is plenty for personal use.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Google Sheets</h2>
+      <div class="form-group">
+        <label for="appsScriptUrl">Apps Script web app URL</label>
+        <input type="url" id="appsScriptUrl" placeholder="https://script.google.com/macros/s/…/exec" spellcheck="false">
+        <p class="hint">
+          Follow the <strong>Apps Script setup</strong> instructions in the README to get this URL.
+        </p>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button id="save-btn">Save settings</button>
+      <span id="status" class="status hidden"></span>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

@@ -143,12 +143,12 @@ function extractStreetEasy() {
   }
 
   // --- DOM fallback for neighborhood ---
-  // StreetEasy uses MUI breadcrumbs with aria-label="breadcrumb"
+  // StreetEasy uses MUI breadcrumbs with aria-label="breadcrumb".
+  // The building name is plain text (not an <a>), so the last <a> is the neighborhood.
   if (!result.neighborhood) {
     const crumbs = [...document.querySelectorAll('nav[aria-label="breadcrumb"] a')];
-    // Breadcrumb order: NYC > Borough > Neighborhood > Building — take second-to-last
-    if (crumbs.length >= 2) {
-      result.neighborhood = crumbs[crumbs.length - 2].textContent.trim();
+    if (crumbs.length >= 1) {
+      result.neighborhood = crumbs[crumbs.length - 1].textContent.trim();
     }
   }
 

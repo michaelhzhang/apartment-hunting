@@ -116,8 +116,8 @@ async function saveApartment(settings) {
       getCommuteTime(address, settings.workAddress, 'transit', settings.mapsApiKey),
       getCommuteTime(address, settings.workAddress, 'walking', settings.mapsApiKey),
     ]);
-    document.getElementById('transit-time').textContent = transitTime;
-    document.getElementById('walking-time').textContent = walkingTime;
+    document.getElementById('transit-time').textContent = displayMinutes(transitTime);
+    document.getElementById('walking-time').textContent = displayMinutes(walkingTime);
     document.getElementById('commute-preview').classList.remove('hidden');
   } catch (err) {
     setStatus(`Maps API error: ${err.message}`, 'error');
@@ -171,9 +171,15 @@ function nextMondayNineAmISO() {
   return d.toISOString();
 }
 
-function formatDuration(seconds) {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.round((seconds % 3600) / 60);
+// Returns total minutes as a number — stored as-is in the sheet for sorting.
+function toMinutes(seconds) {
+  return Math.round(seconds / 60);
+}
+
+// Human-readable label used only in the popup preview.
+function displayMinutes(minutes) {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
   if (h === 0) return `${m} min`;
   if (m === 0) return `${h} hr`;
   return `${h} hr ${m} min`;
@@ -214,7 +220,7 @@ async function getCommuteTime(origin, destination, mode, apiKey) {
 
   // duration is returned as e.g. "1234s"
   const seconds = parseInt(route.duration.replace('s', ''), 10);
-  return formatDuration(seconds);
+  return toMinutes(seconds);
 }
 
 // ---------------------------------------------------------------------------

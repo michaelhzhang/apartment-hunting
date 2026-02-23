@@ -174,18 +174,19 @@ function extractStreetEasy() {
   }
 
   // --- DOM fallback for availability ---
-  // StreetEasy: <p class="...RentalListingSpec_title...">Available</p>
-  //             followed by a sibling with the value (e.g. "Now" or "March 1")
+  // StreetEasy: <div data-testid="rentalListingSpec-available">
+  //               <p>Available</p>
+  //               <p>Available now</p>  ← or a date like "March 1, 2026"
+  //             </div>
   if (!result.availableNow && !result.availableDate) {
-    const labels = [...document.querySelectorAll('[class*="RentalListingSpec_title"]')];
-    const availLabel = labels.find((el) => /^available$/i.test(el.textContent.trim()));
-    if (availLabel) {
-      const valueEl = availLabel.nextElementSibling || availLabel.parentElement?.querySelector('[class*="RentalListingSpec_value"]');
+    const container = document.querySelector('[data-testid="rentalListingSpec-available"]');
+    if (container) {
+      const valueEl = container.querySelector('p:last-of-type') || container.lastElementChild;
       const raw = valueEl?.textContent.trim() || '';
-      if (/^now$/i.test(raw) || /immed/i.test(raw)) {
+      if (/now|immed/i.test(raw)) {
         result.availableNow = true;
       } else if (raw) {
-        const parsed = new Date(raw);
+        const parsed = new Date(raw.replace(/available\s*/i, '').trim());
         if (!isNaN(parsed.getTime())) {
           result.availableDate = parsed.toISOString().slice(0, 10);
         }

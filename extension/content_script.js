@@ -133,24 +133,26 @@ function extractStreetEasy() {
     }
   }
 
-  // --- OpenGraph meta fallbacks ---
-  if (!result.address)      result.address      = getMeta('og:street-address');
-  if (!result.neighborhood) result.neighborhood = getMeta('og:locality');
+  // --- OpenGraph meta fallback for address ---
+  if (!result.address) result.address = getMeta('og:street-address');
 
   // --- DOM fallback for address ---
   if (!result.address) {
     result.address = trySelectors(['h1.building-title', '[class*="buildingTitle"]', 'h1']);
   }
 
-  // --- DOM fallback for neighborhood ---
+  // --- Neighborhood: breadcrumb first, og:locality as last resort ---
   // StreetEasy uses MUI breadcrumbs with aria-label="breadcrumb".
   // The building name is plain text (not an <a>), so the last <a> is the neighborhood.
+  // og:locality often returns a district category ("All Downtown") rather than a
+  // specific neighborhood, so check the breadcrumb first.
   if (!result.neighborhood) {
     const crumbs = [...document.querySelectorAll('nav[aria-label="breadcrumb"] a')];
     if (crumbs.length >= 1) {
       result.neighborhood = crumbs[crumbs.length - 1].textContent.trim();
     }
   }
+  if (!result.neighborhood) result.neighborhood = getMeta('og:locality');
 
   // --- DOM fallback for price ---
   // StreetEasy: <h4 class="...PriceInfo_price...">$5,900</h4>

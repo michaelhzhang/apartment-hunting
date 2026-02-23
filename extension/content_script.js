@@ -99,135 +99,98 @@ function extractStreetEasy() {
     result.unit = pathParts[2].toUpperCase();
   }
 
-  // --- Structured data (most reliable) ---
+  // --- JSON-LD (StreetEasy uses @type: Apartment) ---
   const ld = getJsonLd();
   if (ld) {
+    // Address is a plain string in StreetEasy's schema
     if (ld.address) result.address = formatAddress(ld.address);
     if (ld.name && !result.address) result.address = ld.name.trim();
-    if (ld.offers?.price) result.price = String(ld.offers.price);
-    if (ld.floorSize?.value) result.squareFootage = String(ld.floorSize.value);
-    if (ld.containedInPlace?.name) result.neighborhood = ld.containedInPlace.name;
+
+    // Amenities: StreetEasy uses amenityFeature [{name, value}] array
+    if (Array.isArray(ld.amenityFeature)) {
+      const has = (name) => ld.amenityFeature.some((f) => f.name === name && f.value);
+      result.hasDoorman          = has('doorman') || has('concierge') || has('full_time');
+      result.hasElevator         = has('elevator');
+      result.hasGym              = has('gym');
+      // "laundry" in amenityFeature = laundry in building (not in-unit)
+      result.hasLaundryInBuilding = has('laundry');
+    }
+
+    // W/D in unit, dishwasher, trains, and neighborhood come from the description
+    if (ld.description) {
+      const desc = ld.description;
+
+      result.hasWasherDryer = /washer|dryer|\bw\/d\b/i.test(desc);
+      result.hasDishwasher  = /dishwasher/i.test(desc);
+
+      // Trains: look for "Subway access: F, M, B, D, and 6 lines"
+      const subwayMatch = desc.match(/subway(?:\s+access)?:?\s*([^\n.]+)/i);
+      if (subwayMatch) {
+        const NYC_LINES = /\b([1-7]|[ACEBDFMNQRWJLZGS]|SIR)\b/g;
+        const lines = [...new Set(subwayMatch[1].toUpperCase().match(NYC_LINES) || [])];
+        if (lines.length) result.nearbyTrains = lines.join(', ');
+      }
+    }
   }
 
   // --- OpenGraph meta fallbacks ---
+  if (!result.address)      result.address      = getMeta('og:street-address');
+  if (!result.neighborhood) result.neighborhood = getMeta('og:locality');
+
+  // --- DOM fallback for address ---
   if (!result.address) {
-    // og:street-address is a Facebook Place meta property
-    result.address = getMeta('og:street-address');
-  }
-  if (!result.neighborhood) {
-    result.neighborhood = getMeta('og:locality');
+    result.address = trySelectors(['h1.building-title', '[class*="buildingTitle"]', 'h1']);
   }
 
-  // --- DOM fallbacks for address ---
-  if (!result.address) {
-    result.address = trySelectors([
-      'h1.building-title',
-      '[class*="buildingTitle"]',
-      '[class*="listing-title"]',
-      '[class*="ListingTitle"]',
-      '[class*="address"]',
-      'h1',
-    ]);
-  }
-
-  // --- DOM fallbacks for neighborhood ---
+  // --- DOM fallback for neighborhood ---
+  // StreetEasy uses MUI breadcrumbs with aria-label="breadcrumb"
   if (!result.neighborhood) {
-    // Breadcrumbs: second-to-last link is usually neighborhood
-    const breadcrumbLinks = [...document.querySelectorAll('[class*="breadcrumb"] a, [class*="Breadcrumb"] a, nav a')];
-    if (breadcrumbLinks.length >= 2) {
-      result.neighborhood = breadcrumbLinks[breadcrumbLinks.length - 2].textContent.trim();
+    const crumbs = [...document.querySelectorAll('nav[aria-label="breadcrumb"] a')];
+    // Breadcrumb order: NYC > Borough > Neighborhood > Building — take second-to-last
+    if (crumbs.length >= 2) {
+      result.neighborhood = crumbs[crumbs.length - 2].textContent.trim();
     }
   }
-  if (!result.neighborhood) {
-    result.neighborhood = trySelectors([
-      '[class*="neighborhood"]',
-      '[class*="Neighborhood"]',
-      '[data-neighborhood]',
-    ]);
-  }
 
-  // --- DOM fallbacks for price ---
+  // --- DOM fallback for price ---
+  // StreetEasy: <h4 class="...PriceInfo_price...">$5,900</h4>
   if (!result.price) {
-    const priceEl = document.querySelector(
-      '[class*="price"] [class*="value"], [class*="Price"] [class*="value"], [class*="price"], [class*="Price"]'
-    );
+    const priceEl = document.querySelector('[class*="PriceInfo_price"]');
     if (priceEl) {
       const m = priceEl.textContent.match(/\$([\d,]+)/);
       if (m) result.price = m[1].replace(/,/g, '');
     }
   }
 
-  // --- DOM fallbacks for square footage ---
+  // --- DOM fallback for square footage ---
   if (!result.squareFootage) {
-    // Search all text on page for sqft pattern
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     const sqftRe = /([\d,]+)\s*(?:ft²|sq\.?\s*ft\.?|square\s*f(?:eet|t))/i;
     let node;
     while ((node = walker.nextNode())) {
       const m = node.textContent.match(sqftRe);
-      if (m) {
-        result.squareFootage = m[1].replace(/,/g, '');
-        break;
-      }
+      if (m) { result.squareFootage = m[1].replace(/,/g, ''); break; }
     }
   }
 
-  // --- Amenities ---
-  const amenityTexts = allTextOf([
-    '[class*="amenity"]',
-    '[class*="Amenity"]',
-    '[class*="feature"]',
-    '[class*="Feature"]',
-    '[class*="detail"]',
-    '[class*="Detail"]',
-    '[class*="building-info"] li',
-    '[class*="BuildingInfo"] li',
-    'ul li',
-  ]);
-  const joined = amenityTexts.join(' ');
-
-  result.hasWasherDryer        = /washer|dryer|w\/d|laundry\s+in\s+unit/i.test(joined);
-  result.hasLaundryInBuilding  = /laundry\s+in\s+building|shared\s+laundry|common\s+laundry/i.test(joined);
-  result.hasElevator           = /elevator/i.test(joined);
-  result.hasDoorman            = /doorman|door\s*man|concierge/i.test(joined);
-  result.hasDishwasher         = /dishwasher/i.test(joined);
-  result.hasGym                = /\bgym\b|fitness\s+center|fitness\s+room/i.test(joined);
-
-  // --- Nearby trains ---
-  // StreetEasy lists transit lines; extract recognised NYC subway line identifiers.
-  const NYC_LINES = /\b([1-7]|[ACEBDFMNQRWJLZGSs]|SIR)\b/g;
-  const transitSelectors = [
-    '[class*="transit"]', '[class*="Transit"]',
-    '[class*="subway"]',  '[class*="Subway"]',
-    '[class*="train"]',   '[class*="Train"]',
-    '[class*="transport"]',
-  ];
-  const transitText = allTextOf(transitSelectors).join(' ');
-  if (transitText) {
-    const lines = [...new Set(transitText.toUpperCase().match(NYC_LINES) || [])];
-    result.nearbyTrains = lines.join(', ');
-  }
-
-  // --- Availability ---
-  // Walk text nodes looking for "available [date|now]" patterns
-  const availRe = /avail(?:able)?\s+(.+)/i;
-  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-  let node;
-  while ((node = walker.nextNode())) {
-    const m = node.textContent.trim().match(availRe);
-    if (!m) continue;
-    const raw = m[1].trim();
-    if (/^now$/i.test(raw) || /immed/i.test(raw)) {
-      result.availableNow = true;
-    } else {
-      // Try to parse a date string like "March 1, 2026" or "3/1/2026"
-      const parsed = new Date(raw);
-      if (!isNaN(parsed.getTime())) {
-        // Format as YYYY-MM-DD for the date input
-        result.availableDate = parsed.toISOString().slice(0, 10);
+  // --- DOM fallback for availability ---
+  // StreetEasy: <p class="...RentalListingSpec_title...">Available</p>
+  //             followed by a sibling with the value (e.g. "Now" or "March 1")
+  if (!result.availableNow && !result.availableDate) {
+    const labels = [...document.querySelectorAll('[class*="RentalListingSpec_title"]')];
+    const availLabel = labels.find((el) => /^available$/i.test(el.textContent.trim()));
+    if (availLabel) {
+      const valueEl = availLabel.nextElementSibling || availLabel.parentElement?.querySelector('[class*="RentalListingSpec_value"]');
+      const raw = valueEl?.textContent.trim() || '';
+      if (/^now$/i.test(raw) || /immed/i.test(raw)) {
+        result.availableNow = true;
+      } else if (raw) {
+        const parsed = new Date(raw);
+        if (!isNaN(parsed.getTime())) {
+          result.availableDate = parsed.toISOString().slice(0, 10);
+        }
       }
     }
-    break;
   }
 
   return result;

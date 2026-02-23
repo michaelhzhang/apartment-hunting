@@ -86,14 +86,8 @@ input[readonly] {
 textarea { resize: vertical; }
 
 /* ── Availability ── */
-.avail-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.avail-row input[type="date"] { flex: 1; }
-.avail-hint { font-size: 10px; color: #888; font-weight: 400; text-transform: none; letter-spacing: 0; }
-input[type="date"]:disabled { background: #f3f4f6; color: #aaa; }
+.avail-hint { font-size: 10px; color: #2563eb; font-weight: 400; text-transform: none; letter-spacing: 0; }
+input[type="date"][data-now="true"] { border-color: #2563eb; background: #eff6ff; }
 
 /* ── Amenities ── */
 fieldset {

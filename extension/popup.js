@@ -40,8 +40,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Content script not ready — form is still manually usable
   }
 
-  document.getElementById('availableNow').addEventListener('change', (e) => {
-    document.getElementById('availableDate').disabled = e.target.checked;
+  // Changing the date manually clears the "now" formula flag
+  document.getElementById('availableDate').addEventListener('change', () => {
+    setAvailableNow(false);
   });
 
   document.getElementById('apartment-form').addEventListener('submit', (e) => {
@@ -68,8 +69,9 @@ function populateForm(data) {
   setChecked('hasDishwasher',        data.hasDishwasher);
   setChecked('hasGym',               data.hasGym);
   if (data.availableNow) {
-    setChecked('availableNow', true);
-    document.getElementById('availableDate').disabled = true;
+    const today = new Date().toISOString().slice(0, 10);
+    setVal('availableDate', today);
+    setAvailableNow(true);
   } else if (data.availableDate) {
     setVal('availableDate', data.availableDate);
   }
@@ -80,6 +82,12 @@ function setVal(id, value) {
 }
 function setChecked(id, value) {
   document.getElementById(id).checked = !!value;
+}
+function setAvailableNow(isNow) {
+  const input = document.getElementById('availableDate');
+  const badge = document.getElementById('avail-now-badge');
+  input.dataset.now = isNow ? 'true' : 'false';
+  badge.classList.toggle('hidden', !isNow);
 }
 
 function showView(id) {
@@ -145,7 +153,7 @@ async function saveApartment(settings) {
     hasLaundryInBuilding: document.getElementById('hasLaundryInBuilding').checked,
     hasGym:         document.getElementById('hasGym').checked,
     notes:          document.getElementById('notes').value.trim(),
-    availableNow:   document.getElementById('availableNow').checked,
+    availableNow:   document.getElementById('availableDate').dataset.now === 'true',
     availableDate:  document.getElementById('availableDate').value,
     transitCommute: transitTime,
     walkingCommute: walkingTime,

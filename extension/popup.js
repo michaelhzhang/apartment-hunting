@@ -40,6 +40,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Content script not ready — form is still manually usable
   }
 
+  document.getElementById('availableNow').addEventListener('change', (e) => {
+    document.getElementById('availableDate').disabled = e.target.checked;
+  });
+
   document.getElementById('apartment-form').addEventListener('submit', (e) => {
     e.preventDefault();
     saveApartment(settings);
@@ -59,6 +63,12 @@ function populateForm(data) {
   setChecked('hasElevator',    data.hasElevator);
   setChecked('hasDoorman',     data.hasDoorman);
   setChecked('hasDishwasher',  data.hasDishwasher);
+  if (data.availableNow) {
+    setChecked('availableNow', true);
+    document.getElementById('availableDate').disabled = true;
+  } else if (data.availableDate) {
+    setVal('availableDate', data.availableDate);
+  }
 }
 
 function setVal(id, value) {
@@ -127,6 +137,8 @@ async function saveApartment(settings) {
     hasDoorman:     document.getElementById('hasDoorman').checked,
     hasDishwasher:  document.getElementById('hasDishwasher').checked,
     notes:          document.getElementById('notes').value.trim(),
+    availableNow:   document.getElementById('availableNow').checked,
+    availableDate:  document.getElementById('availableDate').value,
     transitCommute: transitTime,
     walkingCommute: walkingTime,
   };

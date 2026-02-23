@@ -14,6 +14,7 @@ const HEADERS = [
   'Neighborhood',
   'Price ($/mo)',
   'Sq Ft',
+  'Available From',
   'Transit Commute',
   'Walking Commute',
   'W/D in Unit',
@@ -23,6 +24,8 @@ const HEADERS = [
   'Link',
   'Notes',
 ];
+
+const AVAIL_COL = HEADERS.indexOf('Available From') + 1; // 1-indexed for Sheets API
 
 // Quick sanity-check: open the /exec URL in a browser tab.
 // If the deployment is working you'll see {"ok":true}.
@@ -54,12 +57,15 @@ function appendRow(data) {
 
   const yesNo = (val) => (val ? 'Yes' : 'No');
 
+  // Append the row with a placeholder for Available From;
+  // we'll set the cell separately so we can use a formula if needed.
   sheet.appendRow([
     new Date().toLocaleDateString('en-US'),
-    data.address       || '',
-    data.neighborhood  || '',
-    data.price         || '',
-    data.squareFootage || '',
+    data.address        || '',
+    data.neighborhood   || '',
+    data.price          || '',
+    data.squareFootage  || '',
+    '',                          // Available From — set below
     data.transitCommute || '',
     data.walkingCommute || '',
     yesNo(data.hasWasherDryer),
@@ -69,6 +75,14 @@ function appendRow(data) {
     data.url   || '',
     data.notes || '',
   ]);
+
+  // Set Available From: formula if "now", plain date string otherwise
+  const availCell = sheet.getRange(sheet.getLastRow(), AVAIL_COL);
+  if (data.availableNow) {
+    availCell.setFormula('=TODAY()');
+  } else if (data.availableDate) {
+    availCell.setValue(data.availableDate);
+  }
 }
 
 function jsonResponse(obj) {

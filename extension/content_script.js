@@ -85,6 +85,8 @@ function extractStreetEasy() {
     hasElevator: false,
     hasDoorman: false,
     hasDishwasher: false,
+    availableNow: false,
+    availableDate: '',   // YYYY-MM-DD or ''
   };
 
   // --- Structured data (most reliable) ---
@@ -178,6 +180,28 @@ function extractStreetEasy() {
   result.hasElevator    = /elevator/i.test(joined);
   result.hasDoorman     = /doorman|door\s*man|concierge/i.test(joined);
   result.hasDishwasher  = /dishwasher/i.test(joined);
+
+  // --- Availability ---
+  // Walk text nodes looking for "available [date|now]" patterns
+  const availRe = /avail(?:able)?\s+(.+)/i;
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  let node;
+  while ((node = walker.nextNode())) {
+    const m = node.textContent.trim().match(availRe);
+    if (!m) continue;
+    const raw = m[1].trim();
+    if (/^now$/i.test(raw) || /immed/i.test(raw)) {
+      result.availableNow = true;
+    } else {
+      // Try to parse a date string like "March 1, 2026" or "3/1/2026"
+      const parsed = new Date(raw);
+      if (!isNaN(parsed.getTime())) {
+        // Format as YYYY-MM-DD for the date input
+        result.availableDate = parsed.toISOString().slice(0, 10);
+      }
+    }
+    break;
+  }
 
   return result;
 }

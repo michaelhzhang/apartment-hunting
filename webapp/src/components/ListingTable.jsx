@@ -19,6 +19,7 @@ export default function ListingTable({ listings, onToggle }) {
               <th>Price</th>
               <th>Sq Ft</th>
               <th>Transit</th>
+              <th>Walking</th>
               <th>Available</th>
               <th>Amenities</th>
               <th>Trains</th>
@@ -41,6 +42,7 @@ export default function ListingTable({ listings, onToggle }) {
                   <td>{formatPrice(listing['Price ($/mo)'])}</td>
                   <td>{formatSqFt(listing['Sq Ft'])}</td>
                   <td>{formatCommute(listing['Transit (min)'])}</td>
+                  <td>{formatCommute(listing['Walking (min)'])}</td>
                   <td>{listing['Available From'] || '—'}</td>
                   <td>
                     <div className="amenity-list">

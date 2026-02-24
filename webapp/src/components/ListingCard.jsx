@@ -20,6 +20,9 @@ export default function ListingCard({ listing, onToggle }) {
           <span className="listing-commute" title="Transit commute">
             {formatCommute(listing['Transit (min)'])}
           </span>
+          <span className="listing-commute" title="Walking commute">
+            {formatCommute(listing['Walking (min)'])}
+          </span>
           <span className="listing-available">Avail: {listing['Available From'] || '—'}</span>
         </div>
         {amenities.length > 0 && (

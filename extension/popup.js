@@ -201,13 +201,26 @@ function displayMinutes(minutes) {
   return `${h} hr ${m} min`;
 }
 
+// Ensures the address includes enough geographic context (city + state) for the
+// Routes API to locate it in NYC.  StreetEasy addresses are often bare street
+// addresses ("123 Main St") or partial ("123 Main St, Brooklyn") which can
+// cause Google to geocode to the wrong city entirely.
+function ensureNYCContext(address) {
+  const addr = address.trim();
+  // Already contains "New York" or "NY" with a zip — leave it alone.
+  if (/\bNew\s+York\b/i.test(addr) || /\bNY\b\s*\d{5}/.test(addr)) return addr;
+  // Contains a state abbreviation or zip code at the end — likely complete.
+  if (/,\s*[A-Z]{2}\s*\d{0,5}\s*$/.test(addr)) return addr;
+  return `${addr}, New York, NY`;
+}
+
 async function getCommuteTime(origin, destination, mode, apiKey) {
   // Routes API uses TRANSIT / WALK (not "transit" / "walking")
   const travelMode = mode === 'walking' ? 'WALK' : 'TRANSIT';
 
   const body = {
-    origin:      { address: origin },
-    destination: { address: destination },
+    origin:      { address: ensureNYCContext(origin) },
+    destination: { address: ensureNYCContext(destination) },
     travelMode:  travelMode,
   };
 

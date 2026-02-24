@@ -73,6 +73,7 @@ export default function App() {
         case 'price-asc': return parseNum(a['Price ($/mo)']) - parseNum(b['Price ($/mo)']);
         case 'price-desc': return parseNum(b['Price ($/mo)']) - parseNum(a['Price ($/mo)']);
         case 'transit-asc': return parseNum(a['Transit (min)']) - parseNum(b['Transit (min)']);
+        case 'walking-asc': return parseNum(a['Walking (min)']) - parseNum(b['Walking (min)']);
         case 'date-desc':
         default:
           return 0; // reverse sheet order

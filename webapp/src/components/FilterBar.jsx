@@ -24,6 +24,7 @@ export default function FilterBar({
         <option value="price-asc">Price: Low to High</option>
         <option value="price-desc">Price: High to Low</option>
         <option value="transit-asc">Transit: Shortest</option>
+        <option value="walking-asc">Walking: Shortest</option>
       </select>
 
       <select

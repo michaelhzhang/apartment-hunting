@@ -1,8 +1,9 @@
 import StatusControls from './StatusControls.jsx';
 import EditableNotes from './EditableNotes.jsx';
+import FloorPlanUpload from './FloorPlanUpload.jsx';
 import { formatPrice, formatSqFt, formatCommute, getAmenityBadges } from '../utils/formatters.js';
 
-export default function ListingCard({ listing, onToggle }) {
+export default function ListingCard({ listing, onToggle, geminiKey }) {
   const amenities = getAmenityBadges(listing);
   const address = [listing.Address, listing.Unit].filter(Boolean).join(' #');
 
@@ -17,7 +18,10 @@ export default function ListingCard({ listing, onToggle }) {
         </div>
         <div className="listing-details">
           <span className="listing-price">{formatPrice(listing['Price ($/mo)'])}</span>
-          <span className="listing-sqft">{formatSqFt(listing['Sq Ft'])}</span>
+          <span className="listing-sqft">
+            {formatSqFt(listing['Sq Ft'])}
+            <FloorPlanUpload geminiKey={geminiKey} listing={listing} onSave={onToggle} />
+          </span>
           <span className="listing-commute" title="Transit commute">
             {formatCommute(listing['Transit (min)'])}
           </span>

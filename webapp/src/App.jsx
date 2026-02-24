@@ -6,6 +6,7 @@ import ConfigModal from './components/ConfigModal.jsx';
 import { useListings } from './hooks/useListings.js';
 
 const STORAGE_KEY = 'apartmentHunter_scriptUrl';
+const GEMINI_KEY_STORAGE = 'apartmentHunter_geminiKey';
 
 function getStoredUrl() {
   try {
@@ -15,8 +16,17 @@ function getStoredUrl() {
   }
 }
 
+function getStoredGeminiKey() {
+  try {
+    return localStorage.getItem(GEMINI_KEY_STORAGE) || '';
+  } catch {
+    return '';
+  }
+}
+
 export default function App() {
   const [scriptUrl, setScriptUrl] = useState(getStoredUrl);
+  const [geminiKey, setGeminiKey] = useState(getStoredGeminiKey);
   const [showSettings, setShowSettings] = useState(!getStoredUrl());
   const [filters, setFilters] = useState({
     neighborhood: '',
@@ -26,8 +36,12 @@ export default function App() {
 
   const { listings, loading, error, refresh, toggleStatus } = useListings(scriptUrl);
 
-  function handleSaveUrl(url) {
+  function handleSaveSettings(url, gKey) {
     localStorage.setItem(STORAGE_KEY, url);
+    if (gKey !== undefined) {
+      localStorage.setItem(GEMINI_KEY_STORAGE, gKey);
+      setGeminiKey(gKey);
+    }
     setScriptUrl(url);
     setShowSettings(false);
   }
@@ -122,7 +136,7 @@ export default function App() {
           {loading && listings.length === 0 ? (
             <p className="loading-state">Loading listings...</p>
           ) : (
-            <ListingTable listings={filteredListings} onToggle={toggleStatus} />
+            <ListingTable listings={filteredListings} onToggle={toggleStatus} geminiKey={geminiKey} />
           )}
           <div className="listing-count">
             {filteredListings.length} of {listings.length} listings
@@ -133,7 +147,8 @@ export default function App() {
       {showSettings && (
         <ConfigModal
           currentUrl={scriptUrl}
-          onSave={handleSaveUrl}
+          currentGeminiKey={geminiKey}
+          onSave={handleSaveSettings}
           onClose={() => scriptUrl && setShowSettings(false)}
         />
       )}

@@ -1,4 +1,4 @@
-export default function Header({ onRefresh, onOpenSettings, loading }) {
+export default function Header({ onRefresh, loading }) {
   return (
     <header className="header">
       <h1>Apartment Hunter</h1>
@@ -10,13 +10,6 @@ export default function Header({ onRefresh, onOpenSettings, loading }) {
           title="Refresh listings"
         >
           {loading ? '...' : 'Refresh'}
-        </button>
-        <button
-          className="btn btn-icon"
-          onClick={onOpenSettings}
-          title="Settings"
-        >
-          Settings
         </button>
       </div>
     </header>

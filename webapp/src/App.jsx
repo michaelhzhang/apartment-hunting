@@ -2,34 +2,17 @@ import { useState, useMemo, useCallback } from 'react';
 import Header from './components/Header.jsx';
 import FilterBar from './components/FilterBar.jsx';
 import ListingTable from './components/ListingTable.jsx';
-import ConfigModal from './components/ConfigModal.jsx';
 import { useListings } from './hooks/useListings.js';
 
-const STORAGE_KEY = 'apartmentHunter_scriptUrl';
-
-function getStoredUrl() {
-  try {
-    return localStorage.getItem(STORAGE_KEY) || '';
-  } catch {
-    return '';
-  }
-}
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxy7PynJuRjgMaLmUCxq4rQq4IFSwOAyw6tZTK1yC6ymbNcvDJv-EkIzjVU7Pfl2lYI/exec';
 
 export default function App() {
-  const [scriptUrl, setScriptUrl] = useState(getStoredUrl);
-  const [showSettings, setShowSettings] = useState(!getStoredUrl());
   const [filters, setFilters] = useState({
     neighborhood: '',
     status: 'all',
   });
 
-  const { listings, loading, error, refresh, toggleStatus } = useListings(scriptUrl);
-
-  function handleSaveUrl(url) {
-    localStorage.setItem(STORAGE_KEY, url);
-    setScriptUrl(url);
-    setShowSettings(false);
-  }
+  const { listings, loading, error, refresh, toggleStatus } = useListings(SCRIPT_URL);
 
   // Unique neighborhoods
   const neighborhoods = useMemo(() => {
@@ -65,7 +48,6 @@ export default function App() {
     <div className="app">
       <Header
         onRefresh={refresh}
-        onOpenSettings={() => setShowSettings(true)}
         loading={loading}
       />
 
@@ -76,18 +58,7 @@ export default function App() {
         </div>
       )}
 
-      {!scriptUrl && !showSettings && (
-        <div className="empty-state">
-          <p>No Apps Script URL configured.</p>
-          <button className="btn btn-primary" onClick={() => setShowSettings(true)}>
-            Configure
-          </button>
-        </div>
-      )}
-
-      {scriptUrl && (
-        <>
-          <FilterBar
+      <FilterBar
             neighborhoods={neighborhoods}
             filters={filters}
             onFilterChange={setFilters}
@@ -97,19 +68,9 @@ export default function App() {
           ) : (
             <ListingTable listings={filteredListings} onToggle={toggleStatus} />
           )}
-          <div className="listing-count">
-            {filteredListings.length} of {listings.length} listings
-          </div>
-        </>
-      )}
-
-      {showSettings && (
-        <ConfigModal
-          currentUrl={scriptUrl}
-          onSave={handleSaveUrl}
-          onClose={() => scriptUrl && setShowSettings(false)}
-        />
-      )}
+      <div className="listing-count">
+        {filteredListings.length} of {listings.length} listings
+      </div>
     </div>
   );
 }

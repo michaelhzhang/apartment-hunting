@@ -223,6 +223,12 @@ body {
   background: var(--gray-100);
 }
 
+.status-contacted {
+  background: #fef3c7;
+  color: #d97706;
+  border-color: #d97706;
+}
+
 .status-scheduled {
   background: var(--blue-light);
   color: var(--blue);

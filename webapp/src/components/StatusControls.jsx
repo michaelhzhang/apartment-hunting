@@ -1,11 +1,19 @@
 export default function StatusControls({ listing, onToggle }) {
   const link = listing.Link;
+  const contacted = listing['Contacted'] === 'Yes';
   const scheduled = listing['Viewing Scheduled'] === 'Yes';
   const viewed = listing['Viewed'] === 'Yes';
   const interested = listing['Interested'];
 
   return (
     <div className="status-controls">
+      <button
+        className={`status-btn ${contacted ? 'status-contacted' : ''}`}
+        onClick={() => onToggle(link, 'Contacted', contacted ? '' : 'Yes')}
+        title="Contacted"
+      >
+        Contacted
+      </button>
       <button
         className={`status-btn ${scheduled ? 'status-scheduled' : ''}`}
         onClick={() => onToggle(link, 'Viewing Scheduled', scheduled ? '' : 'Yes')}

@@ -27,6 +27,9 @@ const HEADERS = [
   'Nearby Trains',
   'Link',
   'Notes',
+  'Viewing Scheduled',
+  'Viewed',
+  'Interested',
 ];
 
 const AVAIL_COL = HEADERS.indexOf('Available From') + 1; // 1-indexed for Sheets API
@@ -39,20 +42,93 @@ function updateHeaders() {
   sheet.setFrozenRows(1);
 }
 
-// Quick sanity-check: open the /exec URL in a browser tab.
-// If the deployment is working you'll see {"ok":true}.
-function doGet() {
+function doGet(e) {
+  const action = (e && e.parameter && e.parameter.action) || '';
+
+  if (action === 'getListings') {
+    return getListings();
+  }
+
+  // Default: health check
   return jsonResponse({ ok: true, message: 'Apartment Hunter script is reachable.' });
+}
+
+function getListings() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const lastRow = sheet.getLastRow();
+
+  if (lastRow <= 1) {
+    return jsonResponse([]);
+  }
+
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const data = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).getDisplayValues();
+
+  const listings = data.map(function(row) {
+    var obj = {};
+    headers.forEach(function(header, i) {
+      obj[header] = row[i] || '';
+    });
+    return obj;
+  });
+
+  return jsonResponse(listings);
 }
 
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
-    appendRow(data);
+    const action = data.action || 'append';
 
+    if (action === 'updateStatus') {
+      updateStatus(data.link, data.fields);
+      return jsonResponse({ success: true });
+    }
+
+    // Default: append (backward-compatible with extension)
+    appendRow(data);
     return jsonResponse({ success: true });
   } catch (err) {
     return jsonResponse({ success: false, error: err.message });
+  }
+}
+
+function updateStatus(link, fields) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const lastRow = sheet.getLastRow();
+
+  if (lastRow <= 1) {
+    throw new Error('No data rows found');
+  }
+
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const linkCol = headers.indexOf('Link') + 1;
+
+  if (linkCol === 0) {
+    throw new Error('Link column not found');
+  }
+
+  // Find the row with matching link
+  const links = sheet.getRange(2, linkCol, lastRow - 1, 1).getValues();
+  var targetRow = -1;
+  for (var i = 0; i < links.length; i++) {
+    if (links[i][0] === link) {
+      targetRow = i + 2; // +2 for header row and 0-index
+      break;
+    }
+  }
+
+  if (targetRow === -1) {
+    throw new Error('Listing not found for link: ' + link);
+  }
+
+  // Update each specified field
+  for (var field in fields) {
+    var colIndex = headers.indexOf(field);
+    if (colIndex === -1) {
+      throw new Error('Column not found: ' + field);
+    }
+    sheet.getRange(targetRow, colIndex + 1).setValue(fields[field]);
   }
 }
 
@@ -90,6 +166,9 @@ function appendRow(data) {
     data.nearbyTrains || '',
     data.url          || '',
     data.notes        || '',
+    '',                               // Viewing Scheduled
+    '',                               // Viewed
+    '',                               // Interested
   ]);
 
   // Set Available From: formula if "now", plain date string otherwise

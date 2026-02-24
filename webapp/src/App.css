@@ -1,0 +1,396 @@
+/* Reset & Base */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --blue: #2563eb;
+  --blue-light: #dbeafe;
+  --green: #16a34a;
+  --green-light: #dcfce7;
+  --red: #dc2626;
+  --red-light: #fee2e2;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-500: #6b7280;
+  --gray-700: #374151;
+  --gray-900: #111827;
+  --radius: 6px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--gray-900);
+  background: var(--gray-50);
+  line-height: 1.5;
+}
+
+.app {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 16px 32px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--gray-200);
+  margin-bottom: 16px;
+}
+
+.header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius);
+  background: white;
+  color: var(--gray-700);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn:hover {
+  background: var(--gray-100);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--blue);
+  color: white;
+  border-color: var(--blue);
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+
+.btn-secondary {
+  background: white;
+}
+
+/* Filter Bar */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.filter-bar select {
+  padding: 6px 10px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius);
+  background: white;
+  font-size: 0.875rem;
+  color: var(--gray-700);
+}
+
+/* Table (desktop) */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.listings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.listings-table th,
+.listings-table td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--gray-200);
+  white-space: nowrap;
+}
+
+.listings-table th {
+  background: var(--gray-100);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+}
+
+.listings-table td a {
+  color: var(--blue);
+  text-decoration: none;
+}
+
+.listings-table td a:hover {
+  text-decoration: underline;
+}
+
+.notes-cell {
+  max-width: 200px;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* Cards (mobile) - hidden on desktop */
+.cards-wrapper {
+  display: none;
+}
+
+/* Status Controls */
+.status-controls {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.status-btn {
+  padding: 3px 8px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius);
+  background: white;
+  color: var(--gray-500);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.status-btn:hover {
+  background: var(--gray-100);
+}
+
+.status-scheduled {
+  background: var(--blue-light);
+  color: var(--blue);
+  border-color: var(--blue);
+}
+
+.status-viewed {
+  background: var(--green-light);
+  color: var(--green);
+  border-color: var(--green);
+}
+
+.status-interested {
+  background: var(--green-light);
+  color: var(--green);
+  border-color: var(--green);
+}
+
+.status-not-interested {
+  background: var(--red-light);
+  color: var(--red);
+  border-color: var(--red);
+}
+
+/* Amenity Badges */
+.amenity-list {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+
+.amenity-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  background: var(--gray-100);
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  font-size: 0.7rem;
+  color: var(--gray-700);
+}
+
+/* Listing Card (mobile) */
+.listing-card {
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+.listing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.listing-address {
+  color: var(--blue);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.listing-address:hover {
+  text-decoration: underline;
+}
+
+.listing-neighborhood {
+  color: var(--gray-500);
+  font-size: 0.85rem;
+}
+
+.listing-details {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+}
+
+.listing-price {
+  font-weight: 600;
+}
+
+.listing-amenities {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.listing-trains {
+  font-size: 0.8rem;
+  color: var(--gray-500);
+  margin-bottom: 4px;
+}
+
+.listing-notes {
+  font-size: 0.8rem;
+  color: var(--gray-500);
+  margin-bottom: 8px;
+}
+
+/* Error Banner */
+.error-banner {
+  background: var(--red-light);
+  color: var(--red);
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.875rem;
+}
+
+.btn-dismiss {
+  background: none;
+  border: none;
+  color: var(--red);
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 0.8rem;
+}
+
+/* States */
+.empty-state,
+.loading-state {
+  text-align: center;
+  padding: 48px 16px;
+  color: var(--gray-500);
+}
+
+.listing-count {
+  text-align: center;
+  padding: 12px;
+  color: var(--gray-500);
+  font-size: 0.8rem;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  width: 90%;
+  max-width: 480px;
+}
+
+.modal h2 {
+  margin-bottom: 16px;
+}
+
+.modal label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 4px;
+}
+
+.modal input[type="url"] {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+}
+
+.modal .hint {
+  font-size: 0.8rem;
+  color: var(--gray-500);
+  margin: 8px 0 16px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* Responsive: switch to cards on mobile */
+@media (max-width: 768px) {
+  .table-wrapper {
+    display: none;
+  }
+
+  .cards-wrapper {
+    display: block;
+  }
+
+  .filter-bar {
+    flex-direction: column;
+  }
+
+  .filter-bar select {
+    width: 100%;
+  }
+
+  .header h1 {
+    font-size: 1.2rem;
+  }
+}

@@ -2,26 +2,7 @@ export default function StatusControls({ listing, onToggle }) {
   const link = listing.Link;
   const scheduled = listing['Viewing Scheduled'] === 'Yes';
   const viewed = listing['Viewed'] === 'Yes';
-
-  // Interested is 4-state: '' -> 'Yes' -> 'No' -> 'Unavailable' -> ''
   const interested = listing['Interested'];
-
-  function cycleInterested() {
-    if (interested === 'Yes') {
-      onToggle(link, 'Interested', 'No');
-    } else if (interested === 'No') {
-      onToggle(link, 'Interested', 'Unavailable');
-    } else if (interested === 'Unavailable') {
-      onToggle(link, 'Interested', '');
-    } else {
-      onToggle(link, 'Interested', 'Yes');
-    }
-  }
-
-  const label = interested === 'Yes' ? 'Interested'
-    : interested === 'No' ? 'Not Interested'
-    : interested === 'Unavailable' ? 'Unavailable'
-    : '—';
 
   return (
     <div className="status-controls">
@@ -40,11 +21,22 @@ export default function StatusControls({ listing, onToggle }) {
         Viewed
       </button>
       <button
-        className={`status-btn ${interested === 'Yes' ? 'status-interested' : ''} ${interested === 'No' ? 'status-not-interested' : ''} ${interested === 'Unavailable' ? 'status-unavailable' : ''}`}
-        onClick={cycleInterested}
-        title={label}
+        className={`status-btn ${interested === 'Yes' ? 'status-interested' : ''}`}
+        onClick={() => onToggle(link, 'Interested', interested === 'Yes' ? '' : 'Yes')}
       >
-        {label}
+        Interested
+      </button>
+      <button
+        className={`status-btn ${interested === 'No' ? 'status-not-interested' : ''}`}
+        onClick={() => onToggle(link, 'Interested', interested === 'No' ? '' : 'No')}
+      >
+        Not Interested
+      </button>
+      <button
+        className={`status-btn ${interested === 'Unavailable' ? 'status-unavailable' : ''}`}
+        onClick={() => onToggle(link, 'Interested', interested === 'Unavailable' ? '' : 'Unavailable')}
+      >
+        Unavailable
       </button>
     </div>
   );

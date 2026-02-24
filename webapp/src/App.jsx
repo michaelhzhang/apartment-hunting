@@ -49,7 +49,7 @@ export default function App() {
       case 'needs-viewing': return scheduled && !viewed;
       case 'interested': return interested === 'Yes';
       case 'not-interested': return interested === 'No';
-      case 'undecided': return interested !== 'Yes' && interested !== 'No';
+      case 'unavailable': return interested === 'Unavailable';
       default: return true;
     }
   }, [filters.status]);

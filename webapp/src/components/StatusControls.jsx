@@ -3,18 +3,25 @@ export default function StatusControls({ listing, onToggle }) {
   const scheduled = listing['Viewing Scheduled'] === 'Yes';
   const viewed = listing['Viewed'] === 'Yes';
 
-  // Interested is 3-state: '' (undecided) -> 'Yes' -> 'No' -> ''
+  // Interested is 4-state: '' -> 'Yes' -> 'No' -> 'Unavailable' -> ''
   const interested = listing['Interested'];
 
   function cycleInterested() {
     if (interested === 'Yes') {
       onToggle(link, 'Interested', 'No');
     } else if (interested === 'No') {
+      onToggle(link, 'Interested', 'Unavailable');
+    } else if (interested === 'Unavailable') {
       onToggle(link, 'Interested', '');
     } else {
       onToggle(link, 'Interested', 'Yes');
     }
   }
+
+  const label = interested === 'Yes' ? 'Interested'
+    : interested === 'No' ? 'Not Interested'
+    : interested === 'Unavailable' ? 'Unavailable'
+    : '—';
 
   return (
     <div className="status-controls">
@@ -33,11 +40,11 @@ export default function StatusControls({ listing, onToggle }) {
         Viewed
       </button>
       <button
-        className={`status-btn ${interested === 'Yes' ? 'status-interested' : ''} ${interested === 'No' ? 'status-not-interested' : ''}`}
+        className={`status-btn ${interested === 'Yes' ? 'status-interested' : ''} ${interested === 'No' ? 'status-not-interested' : ''} ${interested === 'Unavailable' ? 'status-unavailable' : ''}`}
         onClick={cycleInterested}
-        title={`Interested: ${interested || 'Undecided'}`}
+        title={label}
       >
-        {interested === 'Yes' ? 'Interested' : interested === 'No' ? 'Not Interested' : 'Undecided'}
+        {label}
       </button>
     </div>
   );

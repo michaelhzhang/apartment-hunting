@@ -176,61 +176,21 @@ function extractStreetEasy() {
   }
 
   // --- DOM fallback for nearby trains ---
-  // StreetEasy shows transportation info in a dedicated section with subway
-  // line badges (small colored circles containing the line letter/number).
-  // The JSON-LD description only sometimes contains "Subway access: …" text,
-  // so we also scrape the DOM transportation section.
+  // StreetEasy renders subway lines as colored badge spans inside
+  // [data-testid="station-info"] elements. Each badge has a class like
+  // "TransitIcon_transit__XXXXX" (hash suffix varies between builds).
+  // Example: <span class="TransitIcon_transit__jALDs" style="background-color:...">L</span>
   if (!result.nearbyTrains) {
-    const NYC_LINES = /\b([1-7]|[ACEBDFMNQRWJLZGS]|SIR)\b/g;
-
-    // Strategy 1: data-testid="transportation" container with line badges
-    const transportSection = document.querySelector('[data-testid="transportation"]');
-    if (transportSection) {
-      // Line badges are typically small spans/divs with a single letter/number
-      const badges = transportSection.querySelectorAll(
-        '[class*="SubwayLine"], [class*="subwayLine"], [class*="train-bullet"], ' +
-        '[class*="LineBadge"], [class*="lineBadge"], [class*="TrainBullet"]'
-      );
-      if (badges.length) {
-        const lines = [...new Set(
-          [...badges].map((b) => b.textContent.trim().toUpperCase()).filter((t) => t.match(/^([1-7]|[ACEBDFMNQRWJLZGS]|SIR)$/))
-        )];
-        if (lines.length) result.nearbyTrains = lines.join(', ');
-      }
-    }
-
-    // Strategy 2: broader search for subway line badges anywhere on page
-    if (!result.nearbyTrains) {
-      const allBadges = document.querySelectorAll(
-        '[class*="SubwayLine"], [class*="subwayLine"], [class*="train-bullet"], ' +
-        '[class*="LineBadge"], [class*="lineBadge"], [class*="TrainBullet"]'
-      );
-      if (allBadges.length) {
-        const lines = [...new Set(
-          [...allBadges].map((b) => b.textContent.trim().toUpperCase()).filter((t) => t.match(/^([1-7]|[ACEBDFMNQRWJLZGS]|SIR)$/))
-        )];
-        if (lines.length) result.nearbyTrains = lines.join(', ');
-      }
-    }
-
-    // Strategy 3: look for a "Transportation" heading and grab nearby text
-    if (!result.nearbyTrains) {
-      const headings = document.querySelectorAll('h2, h3, h4, h5, [class*="heading"], [class*="Heading"]');
-      for (const heading of headings) {
-        if (/transportation|transit|subway/i.test(heading.textContent)) {
-          // Search the parent/next sibling section for line references
-          const section = heading.closest('section, div, [class*="Section"]') || heading.parentElement;
-          if (section) {
-            const text = section.textContent;
-            const allMatches = text.toUpperCase().match(NYC_LINES);
-            if (allMatches) {
-              const lines = [...new Set(allMatches)];
-              if (lines.length) result.nearbyTrains = lines.join(', ');
-            }
-          }
-          break;
-        }
-      }
+    const badges = document.querySelectorAll(
+      '[data-testid="station-info"] [class*="TransitIcon"]'
+    );
+    if (badges.length) {
+      const lines = [...new Set(
+        [...badges]
+          .map((b) => b.textContent.trim().toUpperCase())
+          .filter((t) => /^([1-7]|[ACEBDFMNQRWJLZGS]|SIR)$/.test(t))
+      )];
+      if (lines.length) result.nearbyTrains = lines.join(', ');
     }
   }
 

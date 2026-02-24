@@ -205,6 +205,13 @@ body {
   border-color: var(--red);
 }
 
+.status-unavailable {
+  background: var(--gray-200);
+  color: var(--gray-500);
+  border-color: var(--gray-300);
+  text-decoration: line-through;
+}
+
 /* Amenity Badges */
 .amenity-list {
   display: flex;

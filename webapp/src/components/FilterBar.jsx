@@ -36,7 +36,7 @@ export default function FilterBar({
         <option value="needs-viewing">Needs Viewing</option>
         <option value="interested">Interested</option>
         <option value="not-interested">Not Interested</option>
-        <option value="undecided">Undecided</option>
+        <option value="unavailable">Unavailable</option>
       </select>
     </div>
   );

@@ -27,6 +27,7 @@ const HEADERS = [
   'Nearby Trains',
   'Link',
   'Notes',
+  'Contacted',
   'Viewing Scheduled',
   'Viewed',
   'Interested',
@@ -166,6 +167,7 @@ function appendRow(data) {
     data.nearbyTrains || '',
     data.url          || '',
     data.notes        || '',
+    '',                               // Contacted
     '',                               // Viewing Scheduled
     '',                               // Viewed
     '',                               // Interested

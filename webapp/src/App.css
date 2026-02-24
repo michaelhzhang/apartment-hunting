@@ -474,14 +474,22 @@ body {
 .floorplan-error {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 3px;
   background: var(--red-light);
   color: var(--red);
   font-size: 0.7rem;
   font-weight: 700;
+  cursor: pointer;
+}
+
+.floorplan-error-msg {
+  font-weight: 400;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Responsive: switch to cards on mobile */

@@ -4,6 +4,7 @@ import { estimateSqFt } from '../api/gemini.js';
 export default function FloorPlanUpload({ geminiKey, listing, onSave }) {
   const [state, setState] = useState('idle'); // idle | loading | done | error
   const [result, setResult] = useState(null);
+  const [errorMsg, setErrorMsg] = useState('');
   const fileRef = useRef(null);
 
   function handleClick() {
@@ -27,8 +28,9 @@ export default function FloorPlanUpload({ geminiKey, listing, onSave }) {
       onSave(listing.Link, 'Sq Ft', String(sqft));
     } catch (err) {
       console.error('Floor plan estimate failed:', err);
+      const msg = err.message || 'Unknown error';
+      setErrorMsg(msg);
       setState('error');
-      setTimeout(() => setState('idle'), 3000);
     }
     // Reset input so the same file can be re-selected
     e.target.value = '';
@@ -59,7 +61,9 @@ export default function FloorPlanUpload({ geminiKey, listing, onSave }) {
         <span className="floorplan-result" title="Estimated sq ft">{result}</span>
       )}
       {state === 'error' && (
-        <span className="floorplan-error" title="Estimation failed">!</span>
+        <span className="floorplan-error" title={errorMsg} onClick={() => setState('idle')}>
+          ! <span className="floorplan-error-msg">{errorMsg}</span>
+        </span>
       )}
     </span>
   );

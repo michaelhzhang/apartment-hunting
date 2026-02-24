@@ -33,13 +33,15 @@ export default function EditableNotes({ listing, onSave }) {
         onChange={e => setValue(e.target.value)}
         onBlur={save}
         onKeyDown={handleKeyDown}
+        placeholder="Add a note..."
       />
     );
   }
 
   return (
     <span className="notes-display" onClick={startEditing} title="Click to edit">
-      {listing.Notes || '—'}
+      {listing.Notes || <span className="notes-placeholder">Add a note...</span>}
+      <span className="notes-edit-icon">&#9998;</span>
     </span>
   );
 }

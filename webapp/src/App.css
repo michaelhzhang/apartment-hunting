@@ -162,9 +162,10 @@ body {
 }
 
 .notes-cell {
-  max-width: 200px;
   white-space: normal;
   word-break: break-word;
+  min-width: 120px;
+  max-width: 250px;
 }
 
 .notes-display {
@@ -172,8 +173,8 @@ body {
   padding: 2px 4px;
   border-radius: 3px;
   border: 1px solid transparent;
-  display: inline-flex;
-  align-items: center;
+  display: inline;
+  word-break: break-word;
   gap: 4px;
 }
 

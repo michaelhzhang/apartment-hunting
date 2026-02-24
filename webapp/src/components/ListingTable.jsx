@@ -1,10 +1,10 @@
 import ListingCard from './ListingCard.jsx';
 import StatusControls from './StatusControls.jsx';
 import EditableNotes from './EditableNotes.jsx';
-import FloorPlanUpload from './FloorPlanUpload.jsx';
-import { formatPrice, formatSqFt, formatCommute, getAmenityBadges } from '../utils/formatters.js';
+import EditableSqFt from './EditableSqFt.jsx';
+import { formatPrice, formatCommute, getAmenityBadges } from '../utils/formatters.js';
 
-export default function ListingTable({ listings, onToggle, geminiKey }) {
+export default function ListingTable({ listings, onToggle }) {
   if (listings.length === 0) {
     return <p className="empty-state">No listings found.</p>;
   }
@@ -43,8 +43,7 @@ export default function ListingTable({ listings, onToggle, geminiKey }) {
                   <td>{listing.Neighborhood || '—'}</td>
                   <td>{formatPrice(listing['Price ($/mo)'])}</td>
                   <td>
-                    {formatSqFt(listing['Sq Ft'])}
-                    <FloorPlanUpload geminiKey={geminiKey} listing={listing} onSave={onToggle} />
+                    <EditableSqFt listing={listing} onSave={onToggle} />
                   </td>
                   <td>{formatCommute(listing['Transit (min)'])}</td>
                   <td>{formatCommute(listing['Walking (min)'])}</td>
@@ -73,7 +72,7 @@ export default function ListingTable({ listings, onToggle, geminiKey }) {
       {/* Mobile cards */}
       <div className="cards-wrapper">
         {listings.map(listing => (
-          <ListingCard key={listing.Link} listing={listing} onToggle={onToggle} geminiKey={geminiKey} />
+          <ListingCard key={listing.Link} listing={listing} onToggle={onToggle} />
         ))}
       </div>
     </>

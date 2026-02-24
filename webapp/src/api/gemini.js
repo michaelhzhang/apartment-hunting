@@ -30,8 +30,10 @@ export async function estimateSqFt(apiKey, base64Image, mimeType) {
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
   if (!text) throw new Error('No response from Gemini');
 
-  const num = parseInt(text.replace(/[^0-9]/g, ''), 10);
-  if (isNaN(num)) throw new Error(`Could not parse square footage from: "${text}"`);
+  // Extract the first number that looks like a reasonable sq ft (3-5 digits)
+  const match = text.match(/\b(\d{3,5})\b/);
+  if (!match) throw new Error(`Could not parse square footage from: "${text}"`);
+  const num = parseInt(match[1], 10);
 
   return num;
 }

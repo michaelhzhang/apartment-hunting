@@ -138,6 +138,20 @@ body {
   top: 0;
 }
 
+.sortable-th {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sortable-th:hover {
+  background: var(--gray-200);
+}
+
+.sort-indicator {
+  font-size: 0.7rem;
+  color: var(--blue);
+}
+
 .listings-table td a {
   color: var(--blue);
   text-decoration: none;

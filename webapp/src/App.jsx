@@ -20,7 +20,6 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(!getStoredUrl());
   const [filters, setFilters] = useState({
     neighborhood: '',
-    sort: 'date-desc',
     status: 'all',
   });
 
@@ -55,37 +54,11 @@ export default function App() {
   }, [filters.status]);
 
   const filteredListings = useMemo(() => {
-    let result = listings.filter(l => {
+    return listings.filter(l => {
       if (filters.neighborhood && l.Neighborhood !== filters.neighborhood) return false;
       if (!matchesStatus(l)) return false;
       return true;
     });
-
-    const parseNum = (str) => {
-      if (!str) return Infinity;
-      const n = parseInt(String(str).replace(/[^0-9]/g, ''), 10);
-      return isNaN(n) ? Infinity : n;
-    };
-
-    result.sort((a, b) => {
-      switch (filters.sort) {
-        case 'date-asc': return 0; // sheet order is date-asc
-        case 'price-asc': return parseNum(a['Price ($/mo)']) - parseNum(b['Price ($/mo)']);
-        case 'price-desc': return parseNum(b['Price ($/mo)']) - parseNum(a['Price ($/mo)']);
-        case 'transit-asc': return parseNum(a['Transit (min)']) - parseNum(b['Transit (min)']);
-        case 'walking-asc': return parseNum(a['Walking (min)']) - parseNum(b['Walking (min)']);
-        case 'date-desc':
-        default:
-          return 0; // reverse sheet order
-      }
-    });
-
-    // Sheet rows come in date-asc order, so reverse for date-desc
-    if (filters.sort === 'date-desc') {
-      result = result.reverse();
-    }
-
-    return result;
   }, [listings, filters, matchesStatus]);
 
   return (

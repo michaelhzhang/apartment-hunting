@@ -16,18 +16,6 @@ export default function FilterBar({
       </select>
 
       <select
-        value={filters.sort}
-        onChange={e => onFilterChange({ ...filters, sort: e.target.value })}
-      >
-        <option value="date-desc">Newest First</option>
-        <option value="date-asc">Oldest First</option>
-        <option value="price-asc">Price: Low to High</option>
-        <option value="price-desc">Price: High to Low</option>
-        <option value="transit-asc">Transit: Shortest</option>
-        <option value="walking-asc">Walking: Shortest</option>
-      </select>
-
-      <select
         value={filters.status}
         onChange={e => onFilterChange({ ...filters, status: e.target.value })}
       >

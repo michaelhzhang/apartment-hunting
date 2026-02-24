@@ -1,10 +1,77 @@
+import { useState, useMemo } from 'react';
 import ListingCard from './ListingCard.jsx';
 import StatusControls from './StatusControls.jsx';
 import EditableNotes from './EditableNotes.jsx';
 import EditableSqFt from './EditableSqFt.jsx';
 import { formatPrice, formatCommute, getAmenityBadges } from '../utils/formatters.js';
 
+const COLUMNS = [
+  { key: 'address', label: 'Address', sortable: true },
+  { key: 'neighborhood', label: 'Neighborhood', sortable: true },
+  { key: 'price', label: 'Price', sortable: true },
+  { key: 'sqft', label: 'Sq Ft', sortable: true },
+  { key: 'transit', label: 'Transit', sortable: true },
+  { key: 'walking', label: 'Walking', sortable: true },
+  { key: 'available', label: 'Available', sortable: true },
+  { key: 'amenities', label: 'Amenities', sortable: false },
+  { key: 'trains', label: 'Trains', sortable: false },
+  { key: 'notes', label: 'Notes', sortable: false },
+  { key: 'status', label: 'Status', sortable: false },
+];
+
+function parseNum(str) {
+  if (!str) return Infinity;
+  const n = parseInt(String(str).replace(/[^0-9]/g, ''), 10);
+  return isNaN(n) ? Infinity : n;
+}
+
+function getSortValue(listing, key) {
+  switch (key) {
+    case 'address': return [listing.Address, listing.Unit].filter(Boolean).join(' #').toLowerCase();
+    case 'neighborhood': return (listing.Neighborhood || '').toLowerCase();
+    case 'price': return parseNum(listing['Price ($/mo)']);
+    case 'sqft': return parseNum(listing['Sq Ft']);
+    case 'transit': return parseNum(listing['Transit (min)']);
+    case 'walking': return parseNum(listing['Walking (min)']);
+    case 'available': return listing['Available From'] || '';
+    default: return '';
+  }
+}
+
 export default function ListingTable({ listings, onToggle }) {
+  const [sortKey, setSortKey] = useState(null);
+  const [sortDir, setSortDir] = useState('asc');
+
+  function handleSort(key) {
+    if (sortKey === key) {
+      if (sortDir === 'asc') {
+        setSortDir('desc');
+      } else {
+        // Third click: clear sort
+        setSortKey(null);
+        setSortDir('asc');
+      }
+    } else {
+      setSortKey(key);
+      setSortDir('asc');
+    }
+  }
+
+  const sorted = useMemo(() => {
+    if (!sortKey) return listings;
+    return [...listings].sort((a, b) => {
+      const av = getSortValue(a, sortKey);
+      const bv = getSortValue(b, sortKey);
+      let cmp;
+      if (typeof av === 'number' && typeof bv === 'number') {
+        cmp = av - bv;
+      } else {
+        cmp = String(av).localeCompare(String(bv));
+      }
+      return sortDir === 'desc' ? -cmp : cmp;
+    });
+  }, [listings, sortKey, sortDir]);
+
   if (listings.length === 0) {
     return <p className="empty-state">No listings found.</p>;
   }
@@ -16,21 +83,22 @@ export default function ListingTable({ listings, onToggle }) {
         <table className="listings-table">
           <thead>
             <tr>
-              <th>Address</th>
-              <th>Neighborhood</th>
-              <th>Price</th>
-              <th>Sq Ft</th>
-              <th>Transit</th>
-              <th>Walking</th>
-              <th>Available</th>
-              <th>Amenities</th>
-              <th>Trains</th>
-              <th>Notes</th>
-              <th>Status</th>
+              {COLUMNS.map(col => (
+                <th
+                  key={col.key}
+                  className={col.sortable ? 'sortable-th' : ''}
+                  onClick={col.sortable ? () => handleSort(col.key) : undefined}
+                >
+                  {col.label}
+                  {col.sortable && sortKey === col.key && (
+                    <span className="sort-indicator">{sortDir === 'asc' ? ' \u25B2' : ' \u25BC'}</span>
+                  )}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {listings.map(listing => {
+            {sorted.map(listing => {
               const address = [listing.Address, listing.Unit].filter(Boolean).join(' #');
               const amenities = getAmenityBadges(listing);
               return (
@@ -71,7 +139,7 @@ export default function ListingTable({ listings, onToggle }) {
 
       {/* Mobile cards */}
       <div className="cards-wrapper">
-        {listings.map(listing => (
+        {sorted.map(listing => (
           <ListingCard key={listing.Link} listing={listing} onToggle={onToggle} />
         ))}
       </div>

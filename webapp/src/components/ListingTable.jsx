@@ -1,5 +1,6 @@
 import ListingCard from './ListingCard.jsx';
 import StatusControls from './StatusControls.jsx';
+import EditableNotes from './EditableNotes.jsx';
 import { formatPrice, formatSqFt, formatCommute, getAmenityBadges } from '../utils/formatters.js';
 
 export default function ListingTable({ listings, onToggle }) {
@@ -52,7 +53,9 @@ export default function ListingTable({ listings, onToggle }) {
                     </div>
                   </td>
                   <td>{listing['Nearby Trains'] || '—'}</td>
-                  <td className="notes-cell">{listing.Notes || '—'}</td>
+                  <td className="notes-cell">
+                    <EditableNotes listing={listing} onSave={onToggle} />
+                  </td>
                   <td>
                     <StatusControls listing={listing} onToggle={onToggle} />
                   </td>

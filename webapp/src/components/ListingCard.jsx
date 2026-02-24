@@ -1,4 +1,5 @@
 import StatusControls from './StatusControls.jsx';
+import EditableNotes from './EditableNotes.jsx';
 import { formatPrice, formatSqFt, formatCommute, getAmenityBadges } from '../utils/formatters.js';
 
 export default function ListingCard({ listing, onToggle }) {
@@ -35,9 +36,9 @@ export default function ListingCard({ listing, onToggle }) {
         {listing['Nearby Trains'] && (
           <div className="listing-trains">{listing['Nearby Trains']}</div>
         )}
-        {listing.Notes && (
-          <div className="listing-notes">{listing.Notes}</div>
-        )}
+        <div className="listing-notes">
+          <EditableNotes listing={listing} onSave={onToggle} />
+        </div>
       </div>
       <StatusControls listing={listing} onToggle={onToggle} />
     </div>
